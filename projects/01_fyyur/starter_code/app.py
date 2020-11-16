@@ -32,18 +32,47 @@ migrate = Migrate(app,db)
 #----------------------------------------------------------------------------#
 # Models.
 #----------------------------------------------------------------------------#
+#Gener should be standalone table with id,name and this table will be linked through many to many relationship with artists and venues
+class Gener(db.Model):
+      __tablename__ = 'Gener'
+      id = db.Column(db.Integer,primary_key=True)
+      name = db.Column(db.String(),nullable=False)
+
+#Table of Gener, Artist many to many relation as Artist can have many genres and one gener can be performed by many artists
+gener_artist = db.Table('gener_artist',
+  db.Column('gener_id',db.Integer,db.ForeignKey('Gener.id'),primary_key=True),
+  db.Column('artist_id',db.Integer,db.ForeignKey('Artist.id'),primary_key=True)
+)
+
+#Table of Gener, Venue many to many relation as Venue can have many genres and one gener can be performed in many venues
+gener_venue = db.Table('gener_venue',
+  db.Column('gener_id',db.Integer,db.ForeignKey('Gener.id'),primary_key=True),
+  db.Column('venue_id',db.Integer,db.ForeignKey('Venue.id'),primary_key=True)
+)
 
 class Venue(db.Model):
     __tablename__ = 'Venue'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    address = db.Column(db.String(120))
+    name = db.Column(db.String(),nullable=False)
+    city = db.Column(db.String(120),nullable=False)
+    state = db.Column(db.String(120),nullable=False)
+    address = db.Column(db.String(120),nullable=False)
+    #Not mandatory in frontend so it is nullable
     phone = db.Column(db.String(120))
+    #No entry field in front end so it is nullable
     image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
+    facebook_link = db.Column(db.String(120),nullable=False)
+
+    #Adding fields that shows in MOC data, setting defaults as there is no field in front end to be inserted
+    website = db.Column(db.String(),default='www.mysite.com')
+    seeking_venue = db.Column(db.Boolean,default=False)
+    seeking_description = db.Column(db.String(),default='Seeking Venue Description')
+
+    #Adding relation and backreference with Gener
+    genres = db.relationship('Gener',secondary=gener_venue, backref=db.backref('venues', lazy=True))
+    #Adding relation and backreference with Show
+    shows = db.relationship('Show',backref=db.backref('venue',lazy=True))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -51,17 +80,35 @@ class Artist(db.Model):
     __tablename__ = 'Artist'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
+    name = db.Column(db.String(),nullable=False)
+    city = db.Column(db.String(120),nullable=False)
+    state = db.Column(db.String(120),nullable=False)
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    #This column is replaced with M2M relation as it will violate the 1st normal form if it is saved with comma separation
+    #genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+
+    #Adding fields that shows in MOC data, setting defaults as there is no field in front end to be inserted
+    website = db.Column(db.String(),default='www.mysite.com')
+    seeking_venue = db.Column(db.Boolean,default=False)
+    seeking_description = db.Column(db.String(),default='Seeking Venue Description')
+
+    #Adding relation and backreference with Gener
+    genres = db.relationship('Gener',secondary=gener_artist, backref=db.backref('artists', lazy=True))
+    #Adding relation and backreference with Show
+    shows = db.relationship('Show',backref=db.backref('artist',lazy=True))
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+class Show(db.Model):
+      __tablename__ = 'Show'
+
+      id = db.Column(db.Integer, primary_key=True)
+      start_time = db.Column(db.DateTime, nullable=False)
+      artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'),nullable=False)
+      venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'),nullable=False)
 
 #----------------------------------------------------------------------------#
 # Filters.
