@@ -74,6 +74,24 @@
 		{% endfor %}
 	</div>
 </section>
-
+<section>
+	<a href='/venues/{{ venue.id }}/edit'>
+		<button >Edit</button>
+	</a>
+</section>
+<section>
+	<button class= "deleteVenue-btn" data-id="{{venue.id}}">Delete</button>
+</section>
+<script>
+	debugger;
+	const deleteBtn = document.querySelectorAll('.deleteVenue-btn')[0];
+	deleteBtn.onclick = function(e) {
+		const venueId = e.target.dataset['id'];
+		console.log(1);
+		fetch('/venues/' + venueId, {
+			method: 'DELETE'
+		});
+	}
+</script>
 {% endblock %}
 
