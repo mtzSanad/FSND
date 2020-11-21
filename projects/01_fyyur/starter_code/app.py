@@ -674,25 +674,20 @@ def show_artist(artist_id):
 def edit_artist(artist_id):
   form = ArtistForm()
 
-  artistModel = Artist.query.get(artist_id)
+  artist = Artist.query.get(artist_id)
 
-  if artistModel:
-        form = ArtistForm(obj=artistModel)
-  
-  artist = {
-      "id" : artistModel.id,
-      "name" : artistModel.name,
-      "genres" :  [ genre.name for genre in artistModel.genres],
-      "city" :  artistModel.city,
-      "state" :  artistModel.state,
-      "phone" :  artistModel.phone,
-      "website" :  artistModel.website,
-      "facebook_link" :  artistModel.facebook_link,
-      "seeking_venue" :  artistModel.seeking_venue ,
-      "seeking_description" :  artistModel.seeking_description,
-      "image_link" :  artistModel.image_link
-  }
-
+  if artist:
+        form.name.data = artist.name
+        form.genres.data = [ genre.name for genre in artist.genres]
+        form.city.data = artist.city
+        form.state.data = artist.state
+        form.phone.data = artist.phone
+        form.website.data = artist.website
+        form.facebook_link.data = artist.facebook_link
+        form.seeking_venue.data = artist.seeking_venue
+        form.seeking_description.data = artist.seeking_description
+        form.image_link.data = artist.image_link        
+        
 
   # artist={
   #   "id": 4,
@@ -767,25 +762,35 @@ def edit_artist_submission(artist_id):
 def edit_venue(venue_id):
   form = VenueForm()
 
-  venueModel = Venue.query.get(venue_id)
+  venue = Venue.query.get(venue_id)
 
-  if venueModel:
-        form = VenueForm(obj=venueModel)
+  if venue:
+        form.name.data = venue.name
+        form.genres.data = [ genre.name for genre in venue.genres]
+        form.address.data = venue.address
+        form.city.data = venue.city
+        form.state.data = venue.state
+        form.phone.data = venue.phone
+        form.website.data = venue.website
+        form.facebook_link.data = venue.facebook_link
+        form.seeking_talent.data = venue.seeking_talent
+        form.seeking_description.data = venue.seeking_description
+        form.image_link.data = venue.image_link    
   
-  venue = {
-      "id" : venueModel.id,
-      "name" : venueModel.name,
-      "genres" :  [genre.name for genre in venueModel.genres],
-      "address": venueModel.address,
-      "city" :  venueModel.city,
-      "state" :  venueModel.state,
-      "phone" :  venueModel.phone,
-      "website" :  venueModel.website,
-      "facebook_link" :  venueModel.facebook_link,
-      "seeking_talent" : venueModel.seeking_talent,
-      "seeking_description" :  venueModel.seeking_description,
-      "image_link" :  venueModel.image_link
-  }
+  # venue = {
+  #     "id" : venueModel.id,
+  #     "name" : venueModel.name,
+  #     "genres" :  [genre.name for genre in venueModel.genres],
+  #     "address": venueModel.address,
+  #     "city" :  venueModel.city,
+  #     "state" :  venueModel.state,
+  #     "phone" :  venueModel.phone,
+  #     "website" :  venueModel.website,
+  #     "facebook_link" :  venueModel.facebook_link,
+  #     "seeking_talent" : venueModel.seeking_talent,
+  #     "seeking_description" :  venueModel.seeking_description,
+  #     "image_link" :  venueModel.image_link
+  # }
 
   # venue={
   #   "id": 1,
