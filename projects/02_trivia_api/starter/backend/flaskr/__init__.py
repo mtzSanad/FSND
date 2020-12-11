@@ -49,16 +49,22 @@ def create_app(test_config=None):
   @app.route('/categories',methods=['GET'])
   def all_categories():
         categories = Category.query.all();
+
+        current_categories = pagenate(request,categories)
+
+        if len(current_categories) == 0:
+              abort(404)
         
         #getting categories as json id:type for react
         categoriesAsJson= {}
-        for category in categories:
-              categoriesAsJson[category.id] = category.type
+        for category in current_categories:
+              categoriesAsJson[category['id']] = category['type']
+              
 
         return jsonify({
           'success':True,
           'categories':categoriesAsJson,
-          'total_categories':len(categories)
+          'total_categories':len(current_categories)
         })
 
 
@@ -79,6 +85,9 @@ def create_app(test_config=None):
         #getting questions      
         questions = Question.query.all()
         current_questions = pagenate(request,questions)
+
+        if len(current_questions) == 0:
+              abort(404)
         
         #getting categories and extracting category array from json
         categories = Category.query.all();
@@ -88,6 +97,7 @@ def create_app(test_config=None):
               categoriesAsJson[category.id] = category.type
         
         return jsonify({ 
+          'success':True,    
           'questions': current_questions,
           'total_questions': len(questions),
           'categories': categoriesAsJson,
@@ -105,6 +115,10 @@ def create_app(test_config=None):
   @app.route('/questions/<int:id>',methods=['DELETE'])
   def deleteQuestion(id):
         question = Question.query.get(id)
+
+        if question == None:
+              abort(404)
+
         question.delete()
 
         return jsonify({
@@ -130,17 +144,26 @@ def create_app(test_config=None):
         #getting request json param for create or search
         body = request.get_json()
 
+
         #Method is called for search not creation
         searchTerm = body.get('searchTerm')
         if searchTerm:
               filtedQuestion = Question.query.filter(Question.question.ilike('%'+searchTerm+'%')).all()
+              if(len(filtedQuestion)>1):
+                    return jsonify({
+                        'questions':pagenate(request,filtedQuestion),
+                        'total_questions':len(filtedQuestion),
+                        'current_category': filtedQuestion[0].category
+                    })
+              else:
+                    return jsonify({
+                        'questions':pagenate(request,filtedQuestion),
+                        'total_questions':0,
+                        'current_category': ''
+                    })
 
-              return jsonify({
-                    'questions':pagenate(request,filtedQuestion),
-                    'total_questions':len(filtedQuestion),
-                    'current_category': filtedQuestion[0].category
-              })
-
+        if body.get('question') == '':
+              abort(500)
 
         #if no searchTerm, creating question object using json data
         question = Question(question = body.get('question'), answer=body.get('answer'), category=body.get('category'), difficulty=body.get('difficulty'))
@@ -180,7 +203,11 @@ def create_app(test_config=None):
         #getting questions of category while handling pagination
         questionsOfCategory = Question.query.filter(Question.category==categoryId).all()
 
+        if len(questionsOfCategory)==0:
+              abort(404)
+
         return jsonify({
+              'success':True,
               'questions': pagenate(request,questionsOfCategory),
               'total_questions': len(questionsOfCategory),
               'current_category': questionsOfCategory[0].category
@@ -197,12 +224,81 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not. 
   '''
+  @app.route('/quizzes',methods=['POST'])
+  def quizzes():
+        #getting previous question to be avoided and quiz category
+        body = request.get_json()
+        previousQuestions = body.get('previous_questions')
+        quizCategory = body.get('quiz_category')
+        quizQuestions={}
+        randomQuestion={}
+            
+        if body.get('quiz_category') == None:
+              abort(500)
+              
+        #in case of selecting all in category the id is zero,then we should remove category filter
+        if quizCategory['id'] == 0:
+              quizQuestions = Question.query.filter(Question.id.notin_(previousQuestions)).all()
+        else:
+              #getting for the selected category and not in previous questions
+              quizQuestions = Question.query.filter(Question.category==quizCategory['id'],Question.id.notin_(previousQuestions)).all()
+
+        #Getting random question
+        if len(quizQuestions)>0:
+              randomQuestion = quizQuestions[random.randrange(0, len(quizQuestions)-1)].format() 
+        else:
+              randomQuestion = {}
+
+        return jsonify({
+              'success':True,
+              'question':randomQuestion
+        })
 
   '''
   @TODO: 
   Create error handlers for all expected errors 
   including 404 and 422. 
   '''
+  @app.errorhandler(400)
+  def bad_request(error):
+        return jsonify({
+            "success": False, 
+            "error": 400,
+            "message": "Bad Request"
+        }), 400
+
+  @app.errorhandler(401)
+  def unatuthorized(error):
+        return jsonify({
+            "success": False, 
+            "error": 401,
+            "message": "Unauthorized"
+        }), 401
+
+  @app.errorhandler(404)
+  def not_found(error):
+        return jsonify({
+            "success": False, 
+            "error": 404,
+            "message": "Not found"
+        }), 404
+
+  @app.errorhandler(405)
+  def methodNotAllowed(error):
+        return jsonify({
+            "success": False, 
+            "error": 405,
+            "message": "Method Not Allowed"
+        }), 405
+
+
+  @app.errorhandler(500)
+  def internalServerError(error):
+        return jsonify({
+            "success": False, 
+            "error": 500,
+            "message": "Internal Server Error"
+        }), 500
   
   return app
 
