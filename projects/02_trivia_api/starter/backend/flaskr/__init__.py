@@ -80,7 +80,7 @@ def create_app(test_config=None):
   ten questions per page and pagination at the bottom of the screen for three pages.
   Clicking on the page numbers should update the questions. 
   '''
-  @app.route('/questions',methods=['GET'])
+  @app.route('/curl http://127.0.0.1:5000/categories',methods=['GET'])
   def questions():
         #getting questions      
         questions = Question.query.all()
@@ -149,7 +149,7 @@ def create_app(test_config=None):
         searchTerm = body.get('searchTerm')
         if searchTerm:
               filtedQuestion = Question.query.filter(Question.question.ilike('%'+searchTerm+'%')).all()
-              if(len(filtedQuestion)>1):
+              if(len(filtedQuestion)>0):
                     return jsonify({
                         'questions':pagenate(request,filtedQuestion),
                         'total_questions':len(filtedQuestion),
@@ -198,7 +198,7 @@ def create_app(test_config=None):
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
-  @app.route('/categories/<int:categoryId>/questions')
+  @app.route('/categories/<int:categoryId>/questions',methods=['GET'])
   def questionsByCategory(categoryId):
         #getting questions of category while handling pagination
         questionsOfCategory = Question.query.filter(Question.category==categoryId).all()

@@ -5,7 +5,8 @@ import json
 
 database_name = "trivia"
 #added user name and password for db
-database_path = "postgres://postgres:postgres@{}/{}".format('localhost:5432', database_name)
+database_path = "postgres://{}/{}".format('localhost:5432', database_name)
+# database_path = "postgres://postgres:postgres@{}/{}".format('localhost:5432', database_name)
 
 db = SQLAlchemy() 
 
