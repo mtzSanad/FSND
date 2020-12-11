@@ -300,6 +300,25 @@ $ curl http://127.0.0.1:5000/categories/1/questions
 }
 ```
 
+### POST '/quizzes'
+- This end point is where you can play the game.
+- Request Arguments: question category and it is zero if no specific category is selected and list of previous asked questions.
+- Returns: random qustion not in previous asked questions.
+
+```
+$ curl -X POST http://127.0.0.1:5000/quizzes -H "Content-Type: application/json" -d '{"previous_questions": [1,2], "quiz_category": {"type": "ALL", "id": 0}}'
+{
+  "question": {
+    "answer": "Brazil",
+    "category": 6,
+    "difficulty": 3,
+    "id": 10,
+    "question": "Which is the only team to play in every soccer World Cup tournament?"
+  },
+  "success": true
+}
+```
+
 
 ## Testing
 There are 14 test that handles all end point success and failure crietria. To run the tests, run
@@ -309,3 +328,7 @@ createdb trivia_test
 psql trivia_test < trivia.psql
 python test_flaskr.py
 ```
+
+## Author
+Moataz Sanad made the required TODO's in this project mainly on  __init__.py and test_flasker.py, the project is developed by Udacity for learning purpose.
+Original repository https://github.com/udacity/FSND/tree/master/projects/02_trivia_api/starter
