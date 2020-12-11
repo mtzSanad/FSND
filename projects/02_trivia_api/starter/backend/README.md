@@ -6,9 +6,13 @@ This project is fun to play small trivia where you can create questions and sele
 Project main features:-
 
 1- Create question.
+
 2- Display list of question by category.
+
 3- Search with question term.
+
 4- Delete question.
+
 5- Play the game and have fun :).
 
 ## Getting Started
@@ -66,27 +70,234 @@ Setting the `FLASK_APP` variable to `flaskr` directs flask to use the `flaskr` d
 ## API Documentation
 
 ### GET '/categories'
+- Fetch question categories this method use pagination of 10 category by page.
+- Request Arguments: None
+- Returns: Json object that contains 'categories' property that hold categories as JSON as key value pair, where id is the key and category name is the value.
+```
+$curl http://127.0.0.1:5000/categories
+
+      {
+        'success':True,
+        'categories':{
+          '1' : "Science",
+          '2' : "Art",
+          '3' : "Geography",
+          '4' : "History",
+          '5' : "Entertainment",
+          '6' : "Sports"
+        },
+        'total_categories':6
+      }
+```
+
+### GET '/questions'
+- Fetch questions this method use pagination of 10 quesiton by page.
+- Request Arguments: None
+- Returns: Json object that contains questions and categories data.
 
 ```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
+$curl http://127.0.0.1:5000/questions
 
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
+{
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "current_category": {
+    "id": 1,
+    "type": "Science"
+  },
+  "questions": [
+    {
+      "answer": "Apollo 13",
+      "category": 5,
+      "difficulty": 4,
+      "id": 2,
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    },
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    {
+      "answer": "Edward Scissorhands",
+      "category": 5,
+      "difficulty": 3,
+      "id": 6,
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+    },
+    {
+      "answer": "Brazil",
+      "category": 6,
+      "difficulty": 3,
+      "id": 10,
+      "question": "Which is the only team to play in every soccer World Cup tournament?"
+    },
+    {
+      "answer": "Uruguay",
+      "category": 6,
+      "difficulty": 4,
+      "id": 11,
+      "question": "Which country won the first ever soccer World Cup in 1930?"
+    },
+    {
+      "answer": "George Washington Carver",
+      "category": 4,
+      "difficulty": 2,
+      "id": 12,
+      "question": "Who invented Peanut Butter?"
+    },
+    {
+      "answer": "Lake Victoria",
+      "category": 3,
+      "difficulty": 2,
+      "id": 13,
+      "question": "What is the largest lake in Africa?"
+    },
+    {
+      "answer": "The Palace of Versailles",
+      "category": 3,
+      "difficulty": 3,
+      "id": 14,
+      "question": "In which royal palace would you find the Hall of Mirrors?"
+    },
+    {
+      "answer": "Agra",
+      "category": 3,
+      "difficulty": 2,
+      "id": 15,
+      "question": "The Taj Mahal is located in which Indian city?"
+    },
+    {
+      "answer": "Escher",
+      "category": 2,
+      "difficulty": 1,
+      "id": 16,
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }
+  ],
+  "success": true,
+  "total_questions": 21
+}
+```
 
-GET '/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
+### DELETE '/questions/<int:id>'
+- Delete only one question.
+- Request Arguments: question id to be deleted.
+- Returns: Json object that contains deleted id.
 
+```
+$curl -X DELETE http://127.0.0.1:5000//questions/1
+  {
+    'success':True,
+    'id':1
+  }
+```
+
+### POST '/questions'
+- This end point is resposible on creating a new question or searching for question based on query parameter sent.
+- In case question object is sent in request body, then it is create a new question.
+- In case 'searchTerm' is sent as request body parameter then searching for question is performed.
+
+Question creation case
+```
+$curl -X POST  http://127.0.0.1:5000/questions -H "Content-Type: application/json" -d '{ "question": "Test question?", "answer": "test", "difficulty": 1, "category": "1" }'
+
+{
+  "id": 30,
+  "question": {
+    "answer": "test",
+    "category": 1,
+    "difficulty": 1,
+    "id": 30,
+    "question": "Test question?"
+  },
+  "success": true
+}
+```
+
+Question search case
+```
+$curl -X POST  http://127.0.0.1:5000/questions -H "Content-Type: application/json" -d '{ "searchTerm":  "test" }'
+
+{
+  "current_category": 1,
+  "questions": [
+    {
+      "answer": "test",
+      "category": 1,
+      "difficulty": 1,
+      "id": 30,
+      "question": "Test question?"
+    }
+  ],
+  "total_questions": 1
+}
+```
+
+### GET '/categories/<int:categoryId>/questions'
+- Fetch questions for specific category.
+- Request Arguments: categoryId
+- Returns: Json object that contains questions.
+
+```
+$ curl http://127.0.0.1:5000/categories/1/questions
+{
+  "current_category": 1,
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    },
+    {
+      "answer": "Alexander Fleming",
+      "category": 1,
+      "difficulty": 3,
+      "id": 21,
+      "question": "Who discovered penicillin?"
+    },
+    {
+      "answer": "Blood",
+      "category": 1,
+      "difficulty": 4,
+      "id": 22,
+      "question": "Hematology is a branch of medicine involving the study of what?"
+    },
+    {
+      "answer": "",
+      "category": 1,
+      "difficulty": 1,
+      "id": 27,
+      "question": ""
+    },
+    {
+      "answer": "fgdfgdfg",
+      "category": 1,
+      "difficulty": 1,
+      "id": 28,
+      "question": "ssdfs"
+    },
+    {
+      "answer": "test",
+      "category": 1,
+      "difficulty": 1,
+      "id": 30,
+      "question": "Test question?"
+    }
+  ],
+  "success": true,
+  "total_questions": 6
+}
 ```
 
 
