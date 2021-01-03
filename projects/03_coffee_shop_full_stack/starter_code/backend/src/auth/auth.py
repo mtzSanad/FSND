@@ -54,14 +54,14 @@ def get_token_auth_header():
         }, 401)
 
     #cheking token exists
-    elif len(parts) == 1:
+    elif len(auth_header_parts) == 1:
         raise AuthError({
             'code': 'invalid_header',
             'description': 'Token not found.'
         }, 401)
 
     #checking if there are more parts than bearer and token
-    elif len(parts) > 2:
+    elif len(auth_header_parts) > 2:
         raise AuthError({
             'code': 'invalid_header',
             'description': 'Authorization header must be bearer token.'
